@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <form method="post" id="main-form">
+    <input type="file" name="image" id="image">
+    <button type="submit">Enviar</button>
+  </form>
+</body>
+<script>
+  const form = document.getElementById('main-form')
+
+  form.addEventListener('submit', sendImage)
+
+  async function sendImage(e) {
+    e.preventDefault()
+
+    const fileInput = document.getElementById('image').files[0]
+
+    const reader = new FileReader()
+    reader.readAsDataURL(fileInput)
+
+    reader.addEventListener('load', e => {
+      console.log('reader', e.target.result)
+
+      fetch('http://localhost:3000/upload', {
+        method: 'post',
+        body: JSON.stringify({
+          image: e.target.result
+        })
+      })
+    })
+  }
+</script>
+</html>

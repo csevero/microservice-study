@@ -1,0 +1,7 @@
+**/node_modules
+broker-logs
+broker-data
+**/files/**/*.png
+**/files/**/*.jpeg
+**/files/**/*.svg
+.DS_Store

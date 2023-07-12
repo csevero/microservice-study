@@ -1,0 +1,60 @@
+version: "3.0"
+services:
+  api:
+    build: 
+      dockerfile: ./docker.Dockerfile
+      context: ./backend/api
+    image: csevero/micro-api
+    restart: on-failure
+    container_name: micro-api
+    ports:
+      - "3000:3000"
+    command: npm run dev
+    stop_grace_period: 1m
+    networks:
+      - micro-network
+    depends_on:
+      broker:
+        condition: service_healthy
+    volumes:
+      - ./backend/api:/var/www
+      - /var/www/node_modules
+  
+  image-processor:
+    build: 
+      dockerfile: ./docker.Dockerfile
+      context: ./backend/image-processor
+    image: csevero/micro-image-processor
+    restart: on-failure
+    container_name: micro-image-processor
+    command: npm run dev
+    stop_grace_period: 1m
+    networks:
+      - micro-network
+    depends_on:
+      broker:
+        condition: service_healthy
+    volumes:
+      - ./backend/image-processor:/var/www
+      - /var/www/node_modules
+
+  broker:
+    image: rabbitmq:management-alpine
+    container_name: micro-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    networks:
+      - micro-network
+    volumes:
+      - ./broker-data:/var/lib/rabbitmq/
+      - ./broker-logs:/var/log/rabbitmq
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "5672"]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+
+networks:
+  micro-network:
+    driver: bridge

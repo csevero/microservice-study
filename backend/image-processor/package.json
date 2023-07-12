@@ -1,0 +1,23 @@
+{
+  "name": "@csevero/image-processor",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "tsx watch src/index.ts"
+  },
+  "keywords": [],
+  "author": "csevero",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/amqplib": "^0.10.1",
+    "tsx": "^3.12.7",
+    "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "amqplib": "^0.10.3",
+    "sharp": "^0.32.1"
+  }
+}
