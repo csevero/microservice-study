@@ -1,23 +1,14 @@
-import amqp from 'amqplib'
 import { createServer } from 'http'
+import { RabbitMQAdapter } from './services/message-broker/RabbitMQAdapter'
 
 (async () => {
-  const connection = await amqp.connect('amqp://micro-rabbitmq:5672')
+  const rabbitMQAdapter = new RabbitMQAdapter()
 
-  const channel = await connection.createChannel()
-  const imageQueue = await channel.assertQueue('image')
-  const imageProcessedQueue = await channel.assertQueue('image-processed')
+  await rabbitMQAdapter.connect()
 
-  channel.consume('image-processed', (msg) => {
-    if (msg) {
-      console.log('Receive a message coming from queue image', msg?.content.toString())
-
-      channel.ack(msg)
-    }
+  rabbitMQAdapter.on('image-processed', (msg: any) => {
+    console.log('Receive a message coming from queue image-processed', msg)
   })
-
-  console.log(`${imageQueue.queue} created`)
-  console.log(`${imageProcessedQueue.queue} created`)
 
   createServer(async (request, response) => {
     const defaultHeaders = {
@@ -34,7 +25,9 @@ import { createServer } from 'http'
 
       const [_, imageBase64] = base64Converted.image.split(',')
 
-      channel.sendToQueue('image', Buffer.from(imageBase64))
+      rabbitMQAdapter.publish('image', { image: imageBase64 }, {
+        persistent: true
+      })
 
       response.writeHead(200, defaultHeaders)
 
